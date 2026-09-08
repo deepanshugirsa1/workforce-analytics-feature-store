@@ -1,0 +1,53 @@
+# Feature specification for the workforce feature store.
+# Config-driven so schemas can evolve without code changes.
+
+entity: employee_id
+event_timestamp: as_of_date
+label: attrition_180d
+
+# Raw columns expected from source (privacy-safe, synthetic).
+raw_schema:
+  employee_id: int
+  as_of_date: datetime
+  org: string
+  tenure_months: float
+  comp_ratio: float          # salary / band midpoint
+  engagement_score: float    # voice-of-employee survey, 1-5
+  manager_span: int
+  promo_count_24m: int
+  transfers_12m: int
+  overtime_hours_4w: float
+  attrition_180d: int        # label: left within 180 days
+
+# Derived features built by src/features/build_features.py
+features:
+  - name: tenure_bucket
+    kind: categorical
+    source: tenure_months
+  - name: comp_ratio_z
+    kind: numeric
+    source: comp_ratio
+  - name: engagement_gap
+    kind: numeric
+    source: engagement_score
+  - name: promo_velocity
+    kind: numeric
+    source: promo_count_24m
+  - name: overtime_load
+    kind: numeric
+    source: overtime_hours_4w
+  - name: mobility_flag
+    kind: numeric
+    source: transfers_12m
+
+# Data-quality expectations enforced by src/quality/checks.py
+quality:
+  non_null:
+    - employee_id
+    - as_of_date
+    - tenure_months
+  ranges:
+    comp_ratio: [0.5, 2.0]
+    engagement_score: [1.0, 5.0]
+    tenure_months: [0.0, 600.0]
+  drift_psi_threshold: 0.2
