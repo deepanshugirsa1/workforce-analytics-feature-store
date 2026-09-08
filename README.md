@@ -9,11 +9,12 @@ Built to mirror how an interdisciplinary people-science team takes a model from
 notebook to reliable production system — with data-quality gates, an
 offline/online feature store, and confidential-by-design synthetic data.
 
-> **Status: ~55% complete** — the full pipeline (generate → quality gate →
-> features → store → train → serve) runs today. Streaming ingestion, DynamoDB
-> online store, and Airflow orchestration are planned (see Future Scope).
+> **Status: end-to-end and runnable.** The full pipeline (generate → quality gate →
+> features → store → train → serve) runs today, with tests and CI. Streaming
+> ingestion, a DynamoDB online store, and Airflow orchestration are the documented
+> next steps (see Future Scope).
 
-## What works today (55%)
+## What works today
 
 - **Config-driven feature framework** (`configs/features.yaml`) so schemas evolve without code changes
 - **Offline + online feature store** with point-in-time training pulls and a low-latency serving snapshot
@@ -21,7 +22,7 @@ offline/online feature store, and confidential-by-design synthetic data.
 - **Attrition-risk model** (gradient boosting) trained from the offline store with AUC reporting
 - **FastAPI serving layer** — real-time single inference, feature-vector inference, and batch inference
 - **Privacy-safe synthetic data** — no real employee records; confidential-by-design
-- Unit tests for the feature and quality layers
+- Unit tests for the feature, quality, and serving layers, with GitHub Actions CI
 
 ## Quick start
 

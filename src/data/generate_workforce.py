@@ -29,15 +29,16 @@ def generate(n: int = 5000, seed: int = 7, as_of: str = "2026-06-01") -> pd.Data
     overtime = rng.gamma(2.0, 4.0, size=n).clip(0, 80)
 
     # Latent attrition propensity: low engagement, low comp, high overtime,
-    # very short or stagnant tenure raise risk. Kept interpretable on purpose.
+    # very short or stagnant tenure raise risk. Continuous terms (not just
+    # thresholds) keep the signal learnable and interpretable on purpose.
     logit = (
-        -1.2
-        + 0.9 * (engagement < 3.0)
-        + 0.8 * (comp_ratio < 0.9)
-        + 0.6 * (overtime > 30)
-        + 0.5 * (tenure < 12)
-        - 0.4 * (promo > 0)
-        + 0.3 * (transfers >= 2)
+        -0.6
+        + 0.85 * (4.0 - engagement)
+        + 1.6 * (1.0 - comp_ratio)
+        + 0.035 * (overtime - 20)
+        + 0.7 * (tenure < 12)
+        - 0.55 * promo
+        + 0.45 * (transfers >= 2)
     )
     prob = 1.0 / (1.0 + np.exp(-logit))
     attrition = (rng.random(n) < prob).astype(int)
